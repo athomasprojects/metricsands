@@ -34,10 +34,11 @@ type base_unit =
   | Kelvin
   | Mol
   | Candela
+  | Unitless
+  | Angle
 
 type si_unit =
   | Volt
-  | Ampere
   | Ohm
   | Coulomb
   | Farad
@@ -47,6 +48,7 @@ type si_unit =
   | Degree
   | Steradian
   | Pascal
+  | Joule
   | Watt
   | Siemens
   | Henry
@@ -69,11 +71,12 @@ type special_derived_unit =
   | Litre
   | Tonne
 
+type t = (base_unit * int) list
+
 let base_units = [ "m"; "g"; "s"; "sec"; "K"; "mol"; "cd" ]
 
 let si_units =
   [ "V"
-  ; "A"
   ; "Ohm"
   ; "C"
   ; "F"
@@ -84,6 +87,7 @@ let si_units =
   ; "deg"
   ; "sr"
   ; "Pa"
+  ; "J"
   ; "W"
   ; "S"
   ; "H"
@@ -134,6 +138,8 @@ let dim_of_base_unit = function
   | Kelvin -> Temperature
   | Mol -> Amount_of_substance
   | Candela -> Luminous_intensity
+  | Unitless -> Dimensionless
+  | Angle -> assert false
 ;;
 
 let string_of_prefix = function
@@ -251,3 +257,30 @@ let exponent_of_prefix = function
 
 let string_prefix_table = StrTable.of_alist_exn prefix_alist
 let prefix_of_string s = Hashtbl.find string_prefix_table s
+
+(* TODO: Handle degrees! *)
+let base_of_si = function
+  | Hertz -> [ Second, -1 ]
+  | Radian -> [ Metre, -1; Metre, 1; Unitless, 0 ]
+  | Steradian -> [ Metre, -2; Metre, 2; Unitless, 0 ]
+  | Newton -> [ Gram, 3; Kilogram, 1; Metre, 1; Second, -2 ]
+  | Pascal -> [ Gram, 3; Kilogram, 1; Metre, -1; Second, -2 ]
+  | Joule -> [ Gram, 3; Kilogram, 1; Metre, 2; Second, -2 ]
+  | Watt -> [ Gram, 3; Kilogram, 1; Metre, 2; Second, -3 ]
+  | Coulomb -> [ Second, 1; Ampere, 1 ]
+  | Volt -> [ Gram, 3; Kilogram, 1; Metre, 2; Second, -3; Ampere, -1 ]
+  | Farad -> [ Gram, -3; Kilogram, -1; Metre, 2; Second, -3; Ampere, -1 ]
+  | Ohm -> [ Gram, 3; Kilogram, 1; Metre, 2; Second, -3; Ampere, -2 ]
+  | Siemens -> [ Gram, -3; Kilogram, -1; Metre, -2; Second, 3; Ampere, 2 ]
+  | Weber -> [ Gram, 3; Kilogram, 1; Metre, 2; Second, -2; Ampere, -1 ]
+  | Tesla -> [ Gram, 3; Kilogram, 1; Second, -2; Ampere, -1 ]
+  | Henry -> [ Gram, 3; Kilogram, 1; Metre, 2; Second, -2; Ampere, -2 ]
+  | Celsius -> [ Kelvin, 1 ]
+  | Lumen -> [ Candela, 1 ]
+  | Lux -> [ Candela, 1; Metre, -2 ]
+  | Becquerel -> [ Second, -1 ]
+  | Gray -> [ Metre, 2; Second, -2 ]
+  | Sievert -> [ Metre, 2; Second, -2 ]
+  | Katal -> [ Mol, 1; Second, -1 ]
+  | Degree -> assert false
+;;
