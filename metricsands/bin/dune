@@ -1,0 +1,4 @@
+(executable
+ (public_name metricsands)
+ (name main)
+ (libraries metricsands))
