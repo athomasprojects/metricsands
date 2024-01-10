@@ -5,11 +5,32 @@ open Core
 module StrTable = Hashtbl.Make (String)
 module StrMap = Map.Make (String)
 
+type dimension =
+  | Length
+  | Mass
+  | Time
+  | Electric_current
+  | Temperature
+  | Amount_of_substance
+  | Luminous_intensity
+  | Dimensionless
+
+type dim =
+  { length : int
+  ; mass : int
+  ; time : int
+  ; electric_current : int
+  ; temperature : int
+  ; amount_of_substance : int
+  ; luminous_intensity : int
+  }
+
 type base_unit =
   | Gram
+  | Kilogram
   | Metre
   | Second
-  | Joule
+  | Ampere
   | Kelvin
   | Mol
   | Candela
@@ -22,7 +43,6 @@ type si_unit =
   | Farad
   | Hertz
   | Newton
-  | ElectronVolt
   | Radian
   | Degree
   | Steradian
@@ -39,6 +59,15 @@ type si_unit =
   | Gray
   | Sievert
   | Katal
+
+type special_derived_unit =
+  | ElectronVolt
+  | Minute
+  | Hour
+  | Curie
+  | Angstrom
+  | Litre
+  | Tonne
 
 let base_units = [ "m"; "g"; "s"; "sec"; "K"; "mol"; "cd" ]
 
@@ -96,6 +125,16 @@ type prefix =
   | Yotta
   | Ronna
   | Quetta
+
+let dim_of_base_unit = function
+  | Metre -> Length
+  | Gram | Kilogram -> Mass
+  | Second -> Time
+  | Ampere -> Electric_current
+  | Kelvin -> Temperature
+  | Mol -> Amount_of_substance
+  | Candela -> Luminous_intensity
+;;
 
 let string_of_prefix = function
   | NoPrefix -> ""
@@ -183,7 +222,7 @@ let value_of_prefix = function
 ;;
 
 let exponent_of_prefix = function
-  | NoPrefix -> 1
+  | NoPrefix -> 0
   | Quecto -> -30
   | Ronto -> -27
   | Yocto -> -24
